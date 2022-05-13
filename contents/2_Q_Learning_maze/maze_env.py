@@ -77,6 +77,7 @@ class Maze(tk.Tk, object):
             origin[0] + 15, origin[1] + 15,
             fill='red')
 
+        # fjc:将控件放置在主窗口中
         # pack all
         self.canvas.pack()
 
