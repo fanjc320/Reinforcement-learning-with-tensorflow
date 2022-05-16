@@ -12,9 +12,9 @@ The RL is in RL_brain.py.
 View more on my tutorial page: https://morvanzhou.github.io/tutorials/
 """
 
-from maze_env import Maze
+from maze_env import *
 from RL_brain import QLearningTable
-
+import datetime
 
 def update():
     for episode in range(100):
@@ -22,13 +22,21 @@ def update():
         observation = env.reset()
 
         while True:
+            begin = datetime.datetime.now()
             # fresh env
             env.render()
+            end = datetime.datetime.now()
+            usetime = (end - begin).microseconds
+            logger.error(usetime)
+            if usetime < 200000:
+                break
 
             # RL choose action based on observation
             action = RL.choose_action(str(observation))
 
             # RL take action and get next observation and reward
+            print("!!!!!!!!!!! observation:", observation, "  action:", action)
+            # logger.info("!!!!!!!!!!! observation:", observation, "  action:", action)
             observation_, reward, done = env.step(action)
 
             # RL learn from this transition
@@ -46,6 +54,21 @@ def update():
     env.destroy()
 
 if __name__ == "__main__":
+    
+    # logger.setLevel(logging.INFO)
+    # formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+    # file_handler = logging.FileHandler('logs.log')
+    # file_handler.setLevel(logging.DEBUG)
+    # file_handler.setFormatter(formatter)
+    # logger.addHandler(file_handler)
+
+    # stdout_handler = logging.StreamHandler(sys.stdout)
+    # stdout_handler.setLevel(logging.DEBUG)
+    # stdout_handler.setFormatter(formatter)
+    
+    # logger.addHandler(stdout_handler)
+    logger.info("q_learning_maze begin!")
+
     env = Maze()
     RL = QLearningTable(actions=list(range(env.n_actions)))
 

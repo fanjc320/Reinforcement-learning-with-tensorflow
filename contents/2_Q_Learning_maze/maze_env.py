@@ -20,10 +20,23 @@ if sys.version_info.major == 2:
 else:
     import tkinter as tk
 
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+file_handler = logging.FileHandler('logs.log')
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+with open('logs.log', 'w'):
+    pass
 
 UNIT = 40   # pixels
-MAZE_H = 4  # grid height
-MAZE_W = 4  # grid width
+# MAZE_H = 4  # grid height
+# MAZE_W = 4  # grid width
+MAZE_H = 3  # grid height
+MAZE_W = 3  # grid width
 
 
 class Maze(tk.Tk, object):
@@ -52,17 +65,18 @@ class Maze(tk.Tk, object):
         origin = np.array([20, 20])
 
         # hell
-        hell1_center = origin + np.array([UNIT * 2, UNIT])
-        self.hell1 = self.canvas.create_rectangle(
-            hell1_center[0] - 15, hell1_center[1] - 15,
-            hell1_center[0] + 15, hell1_center[1] + 15,
-            fill='black')
+        # hell1_center = origin + np.array([UNIT * 2, UNIT])
+        # self.hell1 = self.canvas.create_rectangle(
+        #     hell1_center[0] - 15, hell1_center[1] - 15,
+        #     hell1_center[0] + 15, hell1_center[1] + 15,
+        #     fill='black')
+
         # hell
-        hell2_center = origin + np.array([UNIT, UNIT * 2])
-        self.hell2 = self.canvas.create_rectangle(
-            hell2_center[0] - 15, hell2_center[1] - 15,
-            hell2_center[0] + 15, hell2_center[1] + 15,
-            fill='black')
+        # hell2_center = origin + np.array([UNIT, UNIT * 2])
+        # self.hell2 = self.canvas.create_rectangle(
+        #     hell2_center[0] - 15, hell2_center[1] - 15,
+        #     hell2_center[0] + 15, hell2_center[1] + 15,
+        #     fill='black')
 
         # create oval
         oval_center = origin + UNIT * 2
@@ -83,6 +97,7 @@ class Maze(tk.Tk, object):
 
     def reset(self):
         self.update()
+        logger.info("reset======================")
         time.sleep(0.5)
         self.canvas.delete(self.rect)
         origin = np.array([20, 20])
@@ -112,16 +127,19 @@ class Maze(tk.Tk, object):
         self.canvas.move(self.rect, base_action[0], base_action[1])  # move agent
 
         s_ = self.canvas.coords(self.rect)  # next state
+        # logger.info("ssssssssssssssss_:", s_) 不支持这种
+        logger.info(s_)
 
         # reward function
         if s_ == self.canvas.coords(self.oval):
             reward = 1
             done = True
             s_ = 'terminal'
-        elif s_ in [self.canvas.coords(self.hell1), self.canvas.coords(self.hell2)]:
-            reward = -1
-            done = True
-            s_ = 'terminal'
+        # elif s_ in [self.canvas.coords(self.hell1), self.canvas.coords(self.hell2)]:
+        # elif s_ in [self.canvas.coords(self.hell1)]:
+        #     reward = -1
+        #     done = True
+        #     s_ = 'terminal'
         else:
             reward = 0
             done = False
@@ -129,7 +147,7 @@ class Maze(tk.Tk, object):
         return s_, reward, done
 
     def render(self):
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.update()
 
 

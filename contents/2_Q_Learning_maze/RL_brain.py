@@ -11,12 +11,30 @@ import pandas as pd
 
 
 class QLearningTable:
-    def __init__(self, actions, learning_rate=0.01, reward_decay=0.9, e_greedy=0.9):
+    def __init__(self, actions, learning_rate=0.1, reward_decay=0.9, e_greedy=0.9):
         self.actions = actions  # a list
         self.lr = learning_rate
         self.gamma = reward_decay
         self.epsilon = e_greedy
         self.q_table = pd.DataFrame(columns=self.actions, dtype=np.float64)
+
+        # a=5.0
+        # b=5.0
+        # for i in range(3):
+        #     for j in range(3):
+        #         # if (a, b, a+30, b+30) in [(85.0, 85.0, 115.0, 115.0), (45.0, 85.0, 75.0, 115.0)]:
+        #         if (a, b, a+30, b+30) in [(85.0, 85.0, 115.0, 115.0)]:
+        #             self.check_state_exist("terminal")
+        #         else:
+        #             self.check_state_exist((a, b, a+30, b+30))
+        #         b += 40
+        #         print("++++++++++ state:",a,b)
+        #     a += 40
+        #     b = 5.0
+            
+        print("self.q_table:", self.q_table)
+        print("====================")
+        
 
     def choose_action(self, observation):
         self.check_state_exist(observation)
@@ -54,9 +72,9 @@ class QLearningTable:
 # The index (axis labels) of the Series.
 #idx: Int64Index([1], dtype='int64')
             idx = state_action[idxmax].index
+            # or idx = np.where(state_action == np.max(state_action))[0]
             # some actions may have the same value, randomly choose on in these actions
-            action = np.random.choice(idx)
-
+            action = np.random.choice(idx) #这部分属于预测
             print(" ----idx:",idx," action:",action)
         else:
             # choose random action
@@ -67,11 +85,14 @@ class QLearningTable:
         self.check_state_exist(s_)
         q_predict = self.q_table.loc[s, a]
         if s_ != 'terminal':
+            print("------------------------------")
             print(" q_table:",self.q_table)
             print(" q_table _s:",s_)
             print(" q_table_loc:",self.q_table.loc[s_, :])
-            print(" q_table_loc_max:",self.q_table.loc[s_, :].max())
-            q_target = r + self.gamma * self.q_table.loc[s_, :].max()  # next state is not terminal
+            s_max = self.q_table.loc[s_, :].max()
+            print(" q_table_loc_max:",s_max)
+            q_target = r + self.gamma * s_max  # next state is not terminal
+            print(" q_target:", q_target, " r:", r)
         else:
             q_target = r  # next state is terminal
         #property DataFrame.loc
@@ -80,13 +101,13 @@ class QLearningTable:
         self.q_table.loc[s, a] += self.lr * diff  # update
 
     def check_state_exist(self, state):
-        if state not in self.q_table.index:
+
+        if state not in self.q_table.index: # state like '[5.0, 5.0, 35.0, 35.0]'
             #e.g:======check state: [5.0, 5.0, 35.0, 35.0]  q_table.columns: Int64Index([0, 1, 2, 3], dtype='int64')
             print("======check state:",state, " q_table.columns:", self.q_table.columns)
             # append new state to q table
             self.q_table = self.q_table.append(
 #                 The [0] * x creates a list with x elements. So,
-
 # >>> [ 0 ] * 5
 # [0, 0, 0, 0, 0]
                 pd.Series(
