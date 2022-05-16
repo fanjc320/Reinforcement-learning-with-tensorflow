@@ -12,6 +12,7 @@ View more on my tutorial page: https://morvanzhou.github.io/tutorials/
 """
 
 
+from datetime import datetime
 import numpy as np
 import time
 import sys
@@ -21,6 +22,7 @@ else:
     import tkinter as tk
 
 import logging
+import datetime
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -147,7 +149,9 @@ class Maze(tk.Tk, object):
         return s_, reward, done
 
     def render(self):
-        time.sleep(0.2)
+        # ms = datetime.datetime.now()
+        # logger.info("render--------time:%d", ms)
+        # time.sleep(0.2)
         self.update()
 
 

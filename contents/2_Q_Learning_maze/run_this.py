@@ -27,17 +27,14 @@ def update():
             env.render()
             end = datetime.datetime.now()
             usetime = (end - begin).microseconds
-            logger.error(usetime)
-            if usetime < 200000:
-                break
+            # logger.error(usetime)
 
             # RL choose action based on observation
             action = RL.choose_action(str(observation))
 
             # RL take action and get next observation and reward
-            print("!!!!!!!!!!! observation:", observation, "  action:", action)
-            # logger.info("!!!!!!!!!!! observation:", observation, "  action:", action)
             observation_, reward, done = env.step(action)
+            time.sleep(0.2)
 
             # RL learn from this transition
             RL.learn(str(observation), action, reward, str(observation_))
