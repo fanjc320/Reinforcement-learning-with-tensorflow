@@ -22,17 +22,18 @@ else:
     import tkinter as tk
 
 import logging
-import datetime
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
 file_handler = logging.FileHandler('logs.log')
 file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(formatter)
+# formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+# file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 with open('logs.log', 'w'):
     pass
+
+
 
 UNIT = 40   # pixels
 # MAZE_H = 4  # grid height
@@ -130,7 +131,7 @@ class Maze(tk.Tk, object):
 
         s_ = self.canvas.coords(self.rect)  # next state
         # logger.info("ssssssssssssssss_:", s_) 不支持这种
-        logger.info(s_)
+        # logger.info(s_)
 
         # reward function
         if s_ == self.canvas.coords(self.oval):
@@ -149,23 +150,5 @@ class Maze(tk.Tk, object):
         return s_, reward, done
 
     def render(self):
-        # ms = datetime.datetime.now()
-        # logger.info("render--------time:%d", ms)
-        # time.sleep(0.2)
+        # time.sleep(0.2) 这里的好像最后一步到终点会跳过去，放到别的地方sleep了
         self.update()
-
-
-def update():
-    for t in range(10):
-        s = env.reset()
-        while True:
-            env.render()
-            a = 1
-            s, r, done = env.step(a)
-            if done:
-                break
-
-if __name__ == '__main__':
-    env = Maze()
-    env.after(100, update)
-    env.mainloop()

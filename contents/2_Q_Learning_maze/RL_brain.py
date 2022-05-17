@@ -8,7 +8,7 @@ View more on my tutorial page: https://morvanzhou.github.io/tutorials/
 from doctest import Example
 import numpy as np
 import pandas as pd
-
+from maze_env import logger
 
 class QLearningTable:
     def __init__(self, actions, learning_rate=0.1, reward_decay=0.9, e_greedy=0.9):
@@ -18,19 +18,19 @@ class QLearningTable:
         self.epsilon = e_greedy
         self.q_table = pd.DataFrame(columns=self.actions, dtype=np.float64)
 
-        # a=5.0
-        # b=5.0
-        # for i in range(3):
-        #     for j in range(3):
-        #         # if (a, b, a+30, b+30) in [(85.0, 85.0, 115.0, 115.0), (45.0, 85.0, 75.0, 115.0)]:
-        #         if (a, b, a+30, b+30) in [(85.0, 85.0, 115.0, 115.0)]:
-        #             self.check_state_exist("terminal")
-        #         else:
-        #             self.check_state_exist((a, b, a+30, b+30))
-        #         b += 40
-        #         print("++++++++++ state:",a,b)
-        #     a += 40
-        #     b = 5.0
+        a=5.0
+        b=5.0
+        for i in range(3):
+            for j in range(3):
+                # if (a, b, a+30, b+30) in [(85.0, 85.0, 115.0, 115.0), (45.0, 85.0, 75.0, 115.0)]:
+                if (a, b, a+30, b+30) in [(85.0, 85.0, 115.0, 115.0)]:
+                    self.check_state_exist("terminal")
+                else:
+                    self.check_state_exist(str([a, b, a+30, b+30]))
+                b += 40
+                print("++++++++++ state:",a,b)
+            a += 40
+            b = 5.0
             
         print("self.q_table:", self.q_table)
         print("====================")
@@ -98,13 +98,18 @@ class QLearningTable:
         #property DataFrame.loc
         #Access a group of rows and columns by label(s) or a boolean array.
         diff = q_target - q_predict
+        oldtb = self.q_table.copy(deep = True)
         self.q_table.loc[s, a] += self.lr * diff  # update
+        if not oldtb.equals(self.q_table):
+            logger.info(self.q_table)
 
     def check_state_exist(self, state):
 
         if state not in self.q_table.index: # state like '[5.0, 5.0, 35.0, 35.0]'
+            if state == [85.0, 85.0, 115.0, 115.0]: # fjc：和terminal重复了
+                return
             #e.g:======check state: [5.0, 5.0, 35.0, 35.0]  q_table.columns: Int64Index([0, 1, 2, 3], dtype='int64')
-            print("======check state:",state, " q_table.columns:", self.q_table.columns)
+            # print("======check state:",state, " q_table.columns:", self.q_table.columns)
             # append new state to q table
             self.q_table = self.q_table.append(
 #                 The [0] * x creates a list with x elements. So,
@@ -120,7 +125,6 @@ class QLearningTable:
             print(" qtable0:", self.q_table[0])
             print(" qtable0::", self.q_table[0:])
             print(" series name:", self.q_table[0].name) # 0 ????????
-            print("")
 
 # pandas.Series.name¶
 # property Series.name
@@ -161,51 +165,4 @@ class QLearningTable:
 
 
 # qtable的样式
-# self.q_table:                                  0     1     2    3
-# [5.0, 5.0, 35.0, 35.0]        0.00  0.00  0.00  0.0
-# [5.0, 45.0, 35.0, 75.0]       0.00  0.00  0.00  0.0
-# [45.0, 45.0, 75.0, 75.0]      0.00 -0.01 -0.01  0.0
-# terminal                      0.00  0.00  0.00  0.0
-# [45.0, 5.0, 75.0, 35.0]       0.00  0.00  0.00  0.0
-# [85.0, 5.0, 115.0, 35.0]      0.00 -0.01  0.00  0.0
-# [5.0, 85.0, 35.0, 115.0]      0.00  0.00 -0.01  0.0
-# [125.0, 5.0, 155.0, 35.0]     0.00  0.00  0.00  0.0
-# [5.0, 125.0, 35.0, 155.0]     0.00  0.00  0.00  0.0
-# [45.0, 125.0, 75.0, 155.0]   -0.01  0.00  0.00  0.0
-# [85.0, 125.0, 115.0, 155.0]   0.01  0.00  0.00  0.0
-# [125.0, 125.0, 155.0, 155.0]  0.00  0.00  0.00  0.0
-# [125.0, 45.0, 155.0, 75.0]    0.00  0.00  0.00  0.0
-# [125.0, 85.0, 155.0, 115.0]   0.00  0.00  0.00  0.0
 
-# 向右走
-#  q_table:                                          0             1             2         3
-# [5.0, 5.0, 35.0, 35.0]        1.377423e-11  0.000000e+00  6.200218e-09  0.000000
-# [45.0, 5.0, 75.0, 35.0]       0.000000e+00  1.057568e-14  3.176941e-07  0.000000
-# [45.0, 45.0, 75.0, 75.0]      2.288133e-10 -1.000000e-02 -2.970100e-02  0.000000
-# terminal                      0.000000e+00  0.000000e+00  0.000000e+00  0.000000
-# [5.0, 45.0, 35.0, 75.0]       1.377423e-11  0.000000e+00  0.000000e+00  0.000000
-# [5.0, 85.0, 35.0, 115.0]      0.000000e+00  0.000000e+00 -3.940399e-02  0.000000
-# [85.0, 5.0, 115.0, 35.0]      3.259937e-08 -3.940399e-02  1.267459e-05  0.000000
-# [5.0, 125.0, 35.0, 155.0]     0.000000e+00  0.000000e+00  0.000000e+00  0.000000
-# [45.0, 125.0, 75.0, 155.0]   -1.000000e-02  0.000000e+00  0.000000e+00  0.000000
-# [85.0, 125.0, 115.0, 155.0]   0.000000e+00  0.000000e+00  0.000000e+00  0.000000
-# [125.0, 125.0, 155.0, 155.0]  3.564090e-04  0.000000e+00  0.000000e+00  0.000000
-# [125.0, 85.0, 155.0, 115.0]   0.000000e+00  8.100000e-07  0.000000e+00  0.139942
-# [125.0, 45.0, 155.0, 75.0]    5.373051e-07  8.587819e-03  0.000000e+00  0.000000
-# [125.0, 5.0, 155.0, 35.0]     0.000000e+00  4.205244e-04  0.000000e+00  0.000000
-
-# 向下走
-#  q_table:                                          0         1             2             3
-# [5.0, 5.0, 35.0, 35.0]        5.158640e-09  0.000001  8.908607e-13  3.438503e-09
-# [5.0, 45.0, 35.0, 75.0]       5.091653e-11  0.000021  0.000000e+00  6.499255e-08
-# [45.0, 45.0, 75.0, 75.0]      0.000000e+00 -0.019900 -1.000000e-02  0.000000e+00
-# terminal                      0.000000e+00  0.000000  0.000000e+00  0.000000e+00
-# [45.0, 5.0, 75.0, 35.0]       0.000000e+00  0.000000  0.000000e+00  1.076991e-10
-# [85.0, 5.0, 115.0, 35.0]      0.000000e+00 -0.019900  0.000000e+00  0.000000e+00
-# [5.0, 85.0, 35.0, 115.0]      1.006349e-07  0.000342 -1.990000e-02  4.512514e-09
-# [5.0, 125.0, 35.0, 155.0]     0.000000e+00  0.000000  4.874635e-03  7.650669e-06
-# [125.0, 5.0, 155.0, 35.0]     0.000000e+00  0.000000  0.000000e+00  0.000000e+00
-# [125.0, 45.0, 155.0, 75.0]    0.000000e+00  0.000000  0.000000e+00 -1.000000e-02
-# [45.0, 125.0, 75.0, 155.0]   -1.000000e-02  0.000000  4.307281e-02  3.934226e-05
-# [85.0, 125.0, 115.0, 155.0]   2.965523e-01  0.002208  0.000000e+00  0.000000e+00
-# [125.0, 125.0, 155.0, 155.0]  0.000000e+00  0.000000  0.000000e+00  0.000000e+00
